@@ -1,0 +1,72 @@
+---
+- hosts: Atmosphere # apples to all instances under this name in a hosts file
+  remote_user: root # will be working as root
+  become: yes # should become the root user (sudo privillaged)
+  become_method: sudo
+  gather_facts: no
+
+  tasks:
+
+    - name: Check if desired CRAN source exist
+      remote_user: root
+      shell: grep "deb https://cran.cnr.berkeley.edu/bin/linux/ubuntu xenial/" /etc/apt/sources.list
+      register: CRAN_check # save the output of this command
+      ignore_errors: true # this will probbaly fail, so don't halt the play
+
+    - name: update CRAN source if necessary
+      remote_user: root
+      shell: echo "deb https://cran.cnr.berkeley.edu/bin/linux/ubuntu xenial/" >> /etc/apt/sources.list
+      when: CRAN_check | failed #only execute this task if condition is met
+
+    - name: update sources
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: install R base and r-base-dev and associated packages
+      apt:
+       name="{{ item }}" state=installed
+       install_recommends=yes
+       allow_unauthenticated=yes
+      with_items:
+       - r-base
+       - r-base-dev
+       - gdebi-core
+       - libxml2-dev
+       - libssl-dev
+       - libcurl4-openssl-dev
+
+    - name: download rstudio server
+      get_url:
+       url: https://download2.rstudio.org/rstudio-server-1.0.143-amd64.deb
+       dest: /home/{{ansible_user}}/rstudio-server-1.0.143-amd64.deb
+
+    - name: check if rstudio-server is installed
+      shell: dpkg -l |grep rstudio-server
+      register: rstudio_server_check
+      ignore_errors: true
+
+    - name: Install rstudio server
+      command: sudo gdebi -n /home/{{ansible_user}}/rstudio-server-1.0.143-amd64.deb
+      when: rstudio_server_check| failed
+
+    - name: r - packages (tidyverse)
+      command: >
+          Rscript --slave --no-save --no-restore-history -e "if (! ('{{ item }}' %in% installed.packages()[,'Package'])) { install.packages(pkgs='{{ item }}', repos=c('https://cran.cnr.berkeley.edu/')); print('Added'); } else { print('Already installed'); }"
+      register: r_result
+      failed_when: "r_result.rc != 0 or 'had non-zero exit status' in r_result.stderr"
+      changed_when: "'Added' in r_result.stdout"
+      with_items:
+        - tidyverse
+        - biocLite
+
+
+    - name: r - BioConductor packages (cummeRbund)
+      command: >
+          Rscript –slave –no-save –no-restore-history -e "source('http://bioconductor.org/biocLite.R'); if (! ('{{ item }}' %in% installed.packages()[,'Package'])) { biocLite('{{ item }}'); print('Added'); } else { print(‘Already installed’); }"
+      register: b_result
+      failed_when: "b_result.rc != 0 or 'had non-zero exit status' in b_result.stderr"
+      changed_when: "'Added' in b_result.stdout"
+      with_items:
+            - cummeRbund
+...
