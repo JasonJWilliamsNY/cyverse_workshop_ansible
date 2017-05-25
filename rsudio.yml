@@ -1,3 +1,10 @@
+# This playbook installs
+# - the latest version of R for the Ubuntu Xenial release
+# - Several associated R packages
+# - Rstudio Desktop 1.0.143-amd64
+# - Rstudio Server 1.0.143-amd64
+# - Some R packages and BioConductor/BioConductor packages
+
 ---
 - hosts: Atmosphere # apples to all instances under this name in a hosts file
   remote_user: root # will be working as root
@@ -13,17 +20,17 @@
       register: CRAN_check # save the output of this command
       ignore_errors: true # this will probbaly fail, so don't halt the play
 
-    - name: update CRAN source if necessary
+    - name: Update CRAN source if necessary
       remote_user: root
       shell: echo "deb https://cran.cnr.berkeley.edu/bin/linux/ubuntu xenial/" >> /etc/apt/sources.list
       when: CRAN_check | failed #only execute this task if condition is met
 
-    - name: update sources
+    - name: Update sources
       apt:
         update_cache: yes
         cache_valid_time: 3600
 
-    - name: install R base and r-base-dev and associated packages
+    - name: Install R base and r-base-dev and associated packages
       apt:
        name="{{ item }}" state=installed
        install_recommends=yes
@@ -36,21 +43,37 @@
        - libssl-dev
        - libcurl4-openssl-dev
 
-    - name: download rstudio server
-      get_url:
-       url: https://download2.rstudio.org/rstudio-server-1.0.143-amd64.deb
-       dest: /home/{{ansible_user}}/rstudio-server-1.0.143-amd64.deb
+    - name: Check if rstudio desktop is installed
+      shell: dpkg -l|grep rstudio\s
+      register: rstudio_desktop_check
+      ignore_errors: true
 
-    - name: check if rstudio-server is installed
+    - name: Download rstudio desktop
+      get_url:
+        url: https://download1.rstudio.org/rstudio-1.0.143-amd64.deb
+        dest: /home/{{ansible_user}}/rstudio-1.0.143-amd64.deb
+      when: rstudio_desktop_check| failed
+
+    - name: Install rstudio desktop
+      command: sudo gdebi -n /home/{{ansible_user}}/rstudio-1.0.143-amd64.deb
+      when: rstudio_desktop_check| failed
+
+    - name: Check if rstudio-server is installed
       shell: dpkg -l |grep rstudio-server
       register: rstudio_server_check
       ignore_errors: true
+
+    - name: Download rstudio server
+      get_url:
+        url: https://download2.rstudio.org/rstudio-server-1.0.143-amd64.deb
+        dest: /home/{{ansible_user}}/rstudio-server-1.0.143-amd64.deb
+      when: rstudio_server_check| failed
 
     - name: Install rstudio server
       command: sudo gdebi -n /home/{{ansible_user}}/rstudio-server-1.0.143-amd64.deb
       when: rstudio_server_check| failed
 
-    - name: r - packages (tidyverse)
+    - name: Install general R packages (tidyverse)
       command: >
           Rscript --slave --no-save --no-restore-history -e "if (! ('{{ item }}' %in% installed.packages()[,'Package'])) { install.packages(pkgs='{{ item }}', repos=c('https://cran.cnr.berkeley.edu/')); print('Added'); } else { print('Already installed'); }"
       register: r_result
@@ -58,12 +81,10 @@
       changed_when: "'Added' in r_result.stdout"
       with_items:
         - tidyverse
-        - biocLite
 
-
-    - name: r - BioConductor packages (cummeRbund)
+    - name: Install BioConductor packages (cummeRbund)
       command: >
-          Rscript –slave –no-save –no-restore-history -e "source('http://bioconductor.org/biocLite.R'); if (! ('{{ item }}' %in% installed.packages()[,'Package'])) { biocLite('{{ item }}'); print('Added'); } else { print(‘Already installed’); }"
+          Rscript --slave --no-save --no-restore-history -e "if (! ('{{ item }}' %in% installed.packages()[,'Package'])) { source('https://bioconductor.org/biocLite.R'); biocLite('{{ item }}'); print('Added'); } else { print('Already installed'); }"
       register: b_result
       failed_when: "b_result.rc != 0 or 'had non-zero exit status' in b_result.stderr"
       changed_when: "'Added' in b_result.stdout"
