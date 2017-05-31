@@ -1,0 +1,31 @@
+---
+
+- hosts: Atmosphere # apples to all instances under this name in a hosts file
+  remote_user: root # will be working as root
+  become: yes # should become the root user (sudo privillaged)
+  become_method: sudo
+  gather_facts: no
+  pre_tasks:
+    - name: stop fail2ban
+      service: name=fail2ban state=stopped
+
+    - name: Check if control machine IP is on fail2ban whitelist
+      shell: grep "143.48.140.165" /etc/fail2ban/jail.local
+      register: ip_result
+      ignore_errors: true
+
+    - name: edit fail2ban config
+      shell: >
+        sed '/^ignoreip/s/$/ 143.48.140.165/' /etc/fail2ban/jail.local
+        > jail.tmp && mv jail.tmp /etc/fail2ban/jail.local
+      when: ip_result|failed
+
+    - name: restartfail2ban
+      service: name=fail2ban state=restarted
+
+  roles:
+    #- role: rstudio-desktop-and-server
+    #- role: anaconda
+    #- role: jupyterhub
+    - role: data_carpentry_genomics
+...

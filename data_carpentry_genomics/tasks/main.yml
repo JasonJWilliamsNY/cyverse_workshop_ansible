@@ -1,0 +1,12 @@
+---
+# create the dcuser
+
+- include_vars:
+    file: ../Vault/password.yml
+    name: dc_user_password
+
+- user:
+    name: dcuser
+    password: data4Carp
+
+...

@@ -1,0 +1,29 @@
+---
+
+- name: Check if conda is available and in /opt/anaconda
+  stat:
+    path: /opt/anaconda/bin/conda
+  register: conda_result
+  failed_when: conda_result.stat.exists == false
+
+- name: check if jupyterhub is installed
+  stat:
+   path: /opt/anaconda/bin/jupyterhub
+  register: jupyterhub_result
+  failed_when:  jupyterhub_result.stat.exists == true
+  ignore_errors: true
+
+- name: Install jupyterhub with conda
+  shell: /opt/anaconda/bin/conda install -c conda-forge jupyterhub
+  become: true
+  when: jupyterhub_result.stat.exists == false
+
+- name: Upload startup script
+  copy:
+    src: /etc/ansible/roles/jupyterhub/files/jupyterhub.sh
+    dest: /etc/profile.d
+    owner: root
+    group: root
+    mode: 0777
+
+...
