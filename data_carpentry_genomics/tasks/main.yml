@@ -1,12 +1,25 @@
 ---
 # create the dcuser
 
-- include_vars:
-    file: ../Vault/password.yml
-    name: dc_user_password
+#- include_vars:
+#    file: ../Vault/password.yml
+#    name: dc_user_password
+
 
 - user:
-    name: dcuser
+    name: dcuser6
     password: data4Carp
+    createhome: yes
+    shell: /bin/bash
+    system: no
+    groups: "root, users"
 
+- name: Upload new bashrc
+  copy:
+    src: /Volumes/Samsung USB/cyverse_workshop_ansible/data_carpentry_genomics/files/.bashrc
+    dest: /home/dcuser6
+- name: Upload new profile
+  copy:
+    src: /Volumes/Samsung USB/cyverse_workshop_ansible/data_carpentry_genomics/files/.profile
+    dest: /home/dcuser6
 ...

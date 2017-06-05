@@ -5,18 +5,20 @@
   become: yes # should become the root user (sudo privillaged)
   become_method: sudo
   gather_facts: no
+  vars:
+    local_ip: 68.198.109.37
   pre_tasks:
     - name: stop fail2ban
       service: name=fail2ban state=stopped
 
     - name: Check if control machine IP is on fail2ban whitelist
-      shell: grep "143.48.140.165" /etc/fail2ban/jail.local
+      shell: grep {{local_ip}} /etc/fail2ban/jail.local
       register: ip_result
       ignore_errors: true
 
     - name: edit fail2ban config
       shell: >
-        sed '/^ignoreip/s/$/ 143.48.140.165/' /etc/fail2ban/jail.local
+        sed '/^ignoreip/s/$/ {{local_ip}}/' /etc/fail2ban/jail.local
         > jail.tmp && mv jail.tmp /etc/fail2ban/jail.local
       when: ip_result|failed
 
@@ -26,6 +28,6 @@
   roles:
     #- role: rstudio-desktop-and-server
     #- role: anaconda
-    #- role: jupyterhub
-    - role: data_carpentry_genomics
+    - role: jupyterhub
+    #- role: data_carpentry_genomics
 ...

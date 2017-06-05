@@ -18,12 +18,25 @@
   become: true
   when: jupyterhub_result.stat.exists == false
 
-- name: Upload startup script
+- name: Upload service settings to run on boot
   copy:
-    src: /etc/ansible/roles/jupyterhub/files/jupyterhub.sh
-    dest: /etc/profile.d
+    src: /etc/ansible/roles/jupyterhub/files/jupyterhub.service
+    dest: /etc/systemd/system/
     owner: root
     group: root
     mode: 0777
 
+- name: Upload service settings to run on boot
+  copy:
+    src: /etc/ansible/roles/jupyterhub/files/jupyterhub
+    dest: /etc/init.d
+    owner: root
+    group: root
+    mode: 0777
+
+- name: start the jupyter service
+  shell: >
+   sudo jupyterhub --generate-config -f /etc/jupyterhub/jupyterhub_config.py
+   &&
+   sudo service jupyterhub start
 ...
