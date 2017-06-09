@@ -6,7 +6,7 @@
   become_method: sudo
   gather_facts: no
   vars:
-    local_ip: 68.198.109.37
+    local_ip: 
   pre_tasks:
     - name: stop fail2ban
       service: name=fail2ban state=stopped
@@ -26,8 +26,10 @@
       service: name=fail2ban state=restarted
 
   roles:
-    #- role: rstudio-desktop-and-server
-    #- role: anaconda
+    - role: rstudio-desktop-and-server
+    - role: rstudio-desktop-and-server-w-kallisto-sleuth
+    - role: bioinformatics
+    - role: anaconda
     - role: jupyterhub
     #- role: data_carpentry_genomics
 ...
