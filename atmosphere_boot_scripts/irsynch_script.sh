@@ -8,6 +8,7 @@ main ()
     # This is the main function -- These lines will be executed each run
     #
 
+    init_irods
     inject_atmo_vars
     copy_workshop_datasets
 }
@@ -35,8 +36,28 @@ copy_workshop_datasets ()
   # Performs an irsync command to copy a test dataset folder to $ATMO_USER
   # desktop
   irsync -r i:/iplant/home/shared/cyverse_training/workshop_materials/atmosphere/test_data_01 /home/$ATMO_USER/Desktop/
+  chown -R $ATMO_USER /home/$ATMO_USER/Desktop/
 
   exit 0
+}
+
+init_irods ()
+{
+	if [ ! -d "$HOME/.irods" ]; then
+		mkdir -p $HOME/.irods
+	fi
+
+	if [ ! -e "$HOME/.irods/irods_environment.json" ]; then
+		cat << EOF > $HOME/.irods/irods_environment.json
+{
+    "irods_host": "data.iplantcollaborative.org",
+    "irods_zone_name": "iplant",
+    "irods_port": 1247,
+    "irods_user_name": "anonymous"
+}
+EOF
+	fi
+
 }
 # This line will start the execution of the script
 main
