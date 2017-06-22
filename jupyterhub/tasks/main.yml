@@ -26,7 +26,7 @@
     group: root
     mode: 0777
 
-- name: Upload service settings to run on boot
+- name: Upload service script to run on boot
   copy:
     src: /etc/ansible/roles/jupyterhub/files/jupyterhub
     dest: /etc/init.d
@@ -34,9 +34,19 @@
     group: root
     mode: 0777
 
-- name: start the jupyter service
+- name: generat config file
   shell: >
-   sudo jupyterhub --generate-config -f /etc/jupyterhub/jupyterhub_config.py
+   mkdir /etc/jupyterhub
    &&
-   sudo service jupyterhub start
+   /opt/anaconda/bin/jupyterhub --generate-config
+   &&
+   mv jupyterhub_config.py /etc/jupyterhub/
+
+- name: generate config file
+  command: service jupyterhub start
+  become: true
+
+- name: enable service start at boot
+  shell: systemctl enable jupyterhub.service
+  become: true
 ...
