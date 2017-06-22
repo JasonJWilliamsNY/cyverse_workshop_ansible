@@ -28,7 +28,7 @@
   roles:
     - role: rstudio-desktop-and-server
     #- role: rstudio-desktop-and-server-w-kallisto-sleuth
-    #- role: bioinformatics
+    #- role: kallisto
     - role: anaconda
     - role: jupyterhub
     - role: data_carpentry_genomics

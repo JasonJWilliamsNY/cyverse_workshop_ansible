@@ -34,7 +34,7 @@
     group: root
     mode: 0777
 
-- name: generat config file
+- name: generate config file
   shell: >
    mkdir /etc/jupyterhub
    &&
