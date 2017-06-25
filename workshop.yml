@@ -6,7 +6,7 @@
   become_method: sudo
   gather_facts: no
   vars:
-    local_ip: 66.91.139.66
+    local_ip: 
   pre_tasks:
     - name: stop fail2ban
       service: name=fail2ban state=stopped
