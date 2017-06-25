@@ -11,6 +11,7 @@ main ()
     init_irods
     inject_atmo_vars
     copy_dc_home_datasets
+    add_vnc_permissions
 }
 
 inject_atmo_vars ()
