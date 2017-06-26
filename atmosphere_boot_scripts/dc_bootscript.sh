@@ -46,9 +46,13 @@ copy_dc_home_datasets ()
 add_vnc_permissions ()
 {
     # add dcuser as an authorized user to desktop
-    vncserver --Permissions=dcuser
-
-    exit 0
+    if grep -q "dcuser" /etc/vnc/config.custom
+        then
+            echo "dcuser already added"
+        else
+            echo "adding dcuser"
+            sed '/^Permissions/ s/$/,dcuser:f/' /etc/vnc/config.custom > /etc/vnc/config.custom.tmp && mv /etc/vnc/config.custom.tmp /etc/vnc/config.custom
+    fi
 }
 
 init_irods ()
