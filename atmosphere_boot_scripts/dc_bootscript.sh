@@ -48,10 +48,10 @@ add_vnc_permissions ()
     # add dcuser as an authorized user to desktop
     if grep -q "dcuser" /etc/vnc/config.custom
         then
-            echo "dcuser already added"
+            echo "dcuser already added" >/var/log/williams_bootscript.log 2>&1
         else
             echo "adding dcuser"
-            sed '/^Permissions/ s/$/,dcuser:f/' /etc/vnc/config.custom > /etc/vnc/config.custom.tmp && mv /etc/vnc/config.custom.tmp /etc/vnc/config.custom
+            sed '/^Permissions/ s/$/,dcuser:f/' /etc/vnc/config.custom > /etc/vnc/config.custom.tmp >/var/log/williams_bootscript.log 2>&1 && mv /etc/vnc/config.custom.tmp /etc/vnc/config.custom >/var/log/williams_bootscript.log 2>&1
     fi
 }
 
