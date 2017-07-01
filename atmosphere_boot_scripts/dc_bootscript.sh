@@ -40,18 +40,20 @@ copy_dc_home_datasets ()
   irsync -rs i:/iplant/home/shared/cyverse_training/workshop_materials/genomics_data_carpentry/.dc_sampledata_lite   /home/dcuser/.dc_sampledata_lite  >/var/log/williams_bootscript.log 2>&1
   chown -R dcuser /home/dcuser
 
-  
+
 }
 
 add_vnc_permissions ()
 {
     # add dcuser as an authorized user to desktop
-    if grep -q "dcuser" /etc/vnc/config.custom 
+    if grep -q "dcuser" /etc/vnc/config.custom
         then
             echo "dcuser already added"
+            runuser -l dcuser -c vncserver
         else
             echo "adding dcuser"
-            sed '/^Permissions/ s/$/,dcuser:f/' /etc/vnc/config.custom > /etc/vnc/config.custom.tmp && mv /etc/vnc/config.custom.tmp /etc/vnc/config.custom 
+            sed '/^Permissions/ s/$/,dcuser:f/' /etc/vnc/config.custom > /etc/vnc/config.custom.tmp && mv /etc/vnc/config.custom.tmp /etc/vnc/config.custom
+            runuser -l dcuser -c vncserver
     fi
 }
 
