@@ -49,10 +49,12 @@ add_vnc_permissions ()
     if grep -q "dcuser" /etc/vnc/config.custom
         then
             echo "dcuser already added"
+            vncserver -kill :1
             runuser -l dcuser -c vncserver
         else
             echo "adding dcuser"
             sed '/^Permissions/ s/$/,dcuser:f/' /etc/vnc/config.custom > /etc/vnc/config.custom.tmp && mv /etc/vnc/config.custom.tmp /etc/vnc/config.custom
+            vncserver -kill :1
             runuser -l dcuser -c vncserver
     fi
 }
