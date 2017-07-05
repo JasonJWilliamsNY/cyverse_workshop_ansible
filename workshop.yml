@@ -40,11 +40,10 @@
       service: name=fail2ban state=restarted
 
   roles:
-    - role: rstudio-desktop-and-server
-    #- role: rstudio-desktop-and-server-w-kallisto-sleuth
-    #- role: kallisto
-    #- role: anaconda
-    #- role: jupyterhub
-    #- role: data_carpentry_genomics
-    #- role: dc_bioinformatics
+    #- role: rstudio-desktop-and-server
+    - role: kallisto-hisat-stringtie
+    - role: rstudio-desktop-and-server-w-kallisto-sleuth-ballgown
+    - role: anaconda
+    - role: jupyterhub
+
 ...
