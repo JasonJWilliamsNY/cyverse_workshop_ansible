@@ -63,5 +63,5 @@
 - file:
     path: /usr/share/samtools/vcfutils.pl
     mode: 0777
-    become: true
+  become: true
 ...

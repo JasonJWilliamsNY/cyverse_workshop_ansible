@@ -25,6 +25,7 @@
     owner: root
     group: root
     mode: 0777
+  when: jupyterhub_result.stat.exists == false
 
 - name: Upload service script to run on boot
   copy:
@@ -33,6 +34,7 @@
     owner: root
     group: root
     mode: 0777
+  when: jupyterhub_result.stat.exists == false
 
 - name: generate config file
   shell: >
@@ -41,6 +43,7 @@
    /opt/anaconda/bin/jupyterhub --generate-config
    &&
    mv jupyterhub_config.py /etc/jupyterhub/
+  when: jupyterhub_result.stat.exists == false
 
 - name: generate config file
   command: service jupyterhub start
@@ -49,4 +52,5 @@
 - name: enable service start at boot
   shell: systemctl enable jupyterhub.service
   become: true
+  when: jupyterhub_result.stat.exists == false
 ...
