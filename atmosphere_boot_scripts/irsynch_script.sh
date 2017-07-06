@@ -35,7 +35,7 @@ copy_workshop_datasets ()
 {
   # Performs an irsync command to copy a test dataset folder to $ATMO_USER
   # desktop
-  irsync -r i:/iplant/home/shared/cyverse_training/workshop_materials/atmosphere/test_data_01 /home/$ATMO_USER/Desktop/test_data_01 >/var/log/williams_bootscript.log 2>&1
+  irsync -r i:/iplant/home/shared/cyverse_training/workshop_materials/atmosphere/tuxedo1/cuffdiff /home/$ATMO_USER/Desktop/cuffdiff >/var/log/williams_bootscript.log 2>&1
   chown -R $ATMO_USER /home/$ATMO_USER/Desktop/
 
   exit 0
