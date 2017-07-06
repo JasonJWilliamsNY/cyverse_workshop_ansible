@@ -76,6 +76,7 @@
       with_items:
         - tidyverse
         - devtools
+        - RSkittleBrewer
 
     - name: Install sleuth via devtools
       command: >
@@ -85,7 +86,7 @@
       changed_when: "'Added' in d_result.stdout"
 
 
-    - name: Install BioConductor packages (cummeRbund, rhdf5, ballgown)
+    - name: Install BioConductor packages (cummeRbund, rhdf5, ballgown, genefilter)
       command: >
           Rscript --slave --no-save --no-restore-history -e "if (! ('{{ item }}' %in% installed.packages()[,'Package'])) { source('https://bioconductor.org/biocLite.R'); biocLite('{{ item }}'); print('Added'); } else { print('Already installed'); }"
       register: b_result
@@ -95,4 +96,5 @@
         - cummeRbund
         - rhdf5
         - ballgown
+        - genefilter
 ...
