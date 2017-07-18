@@ -1,0 +1,95 @@
+# Install some bioinformatics software
+
+
+---
+  - name: Check if Miniconda3 is installed in opt/
+    stat:
+      path: /opt/miniconda3
+    register: miniconda_result
+    failed_when: miniconda_result.stat.exists == false
+    ignore_errors: true
+
+  - name: Download and Uncompress miniconda3 bash script
+    get_url:
+      url: https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+      dest: /opt/Miniconda3-latest-Linux-x86_64.sh
+    become: true
+    when: miniconda_result.stat.exists == false
+
+  - name: Install miniconda
+    shell: >
+      bash /opt/Miniconda3-latest-Linux-x86_64.sh -b -p /opt/miniconda3
+    become: true
+    when: miniconda_result.stat.exists == false
+
+  - name: Set miniconda path
+    set_fact:
+      miniconda_path: /opt/miniconda3/
+    when: miniconda_result.stat.exists == false
+
+  - name: Add miniconda to path
+    lineinfile:
+      dest: /etc/environment
+      state: present
+      backrefs: yes
+      regexp: 'PATH=(["]*)((?!.*?{{miniconda_path}}).*?)(["]*)$'
+      line: 'PATH=\1\2:{{miniconda_path}}\3'
+    when: miniconda_result.stat.exists == false
+
+  - name: Check if HiSat2 v 2.1.0 is installed in opt/
+    stat:
+      path: /opt/hisat2-2.1.0/
+    register: hisat_result
+    failed_when: hisat_result.stat.exists == false
+    ignore_errors: true
+
+  - name: Download and Uncompress HiSat2 v 2.1.0 zipfile
+    unarchive:
+      src: ftp://ftp.ccb.jhu.edu/pub/infphilo/hisat2/downloads/hisat2-2.1.0-Linux_x86_64.zip
+      dest: /opt/
+      remote_src: True
+    become: true
+    when: hisat_result.stat.exists == false
+
+  - name: Set HiSat2 path
+    set_fact:
+      hisat_path: /opt/hisat2-2.1.0/
+    when: hisat_result.stat.exists == false
+
+  - name: Add HiSat2 to path
+    lineinfile:
+      dest: /etc/environment
+      state: present
+      backrefs: yes
+      regexp: 'PATH=(["]*)((?!.*?{{hisat_path}}).*?)(["]*)$'
+      line: 'PATH=\1\2:{{hisat_path}}\3'
+    when: hisat_result.stat.exists == false
+
+  - name: Check if stringtie v 1.3.3 is installed in opt/
+    stat:
+      path: /opt/stringtie-1.3.3b.Linux_x86_64/
+    register: stringtie_result
+    failed_when: stringtie_result.stat.exists == false
+    ignore_errors: true
+
+  - name: Download and Uncompress stringtie v 1.3.3 tarball
+    unarchive:
+      src: http://ccb.jhu.edu/software/stringtie/dl/stringtie-1.3.3b.Linux_x86_64.tar.gz
+      dest: /opt/
+      remote_src: True
+    become: true
+    when: stringtie_result.stat.exists == false
+
+  - name: Set stringtie path
+    set_fact:
+      stringtie_path: /opt/stringtie-1.3.3b.Linux_x86_64/
+    when: stringtie_result.stat.exists == false
+
+  - name: Add stringtie to path
+    lineinfile:
+      dest: /etc/environment
+      state: present
+      backrefs: yes
+      regexp: 'PATH=(["]*)((?!.*?{{stringtie_path}}).*?)(["]*)$'
+      line: 'PATH=\1\2:{{stringtie_path}}\3'
+    when: stringtie_result.stat.exists == false

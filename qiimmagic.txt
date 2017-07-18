@@ -1,0 +1,14 @@
+Qiime magic
+
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+sudo bash Miniconda3-latest-Linux-x86_64.sh -b -p /usr/bin/miniconda
+sudo /usr/bin/miniconda/bin/conda update conda
+sudo /usr/bin/miniconda/bin/conda create -n qiime2-2017.6 --file https://data.qiime2.org/distro/core/qiime2-2017.6-conda-linux-64.txt
+
+
+#better magic
+sudo /opt/anaconda/bin/conda update conda
+sudo /opt/anaconda/bin/conda create -n qiime2-2017.6 --file https://data.qiime2.org/distro/core/qiime2-2017.6-conda-linux-64.txt
+conda create --prefix ~/qiime2-2017.6 --clone qiime2-2017.6
+(maybe /home/$ATMO_USER/...)
+sudo chown -R $ATMO_USER /home/$ATMO_USER/qiime2-2017.6
